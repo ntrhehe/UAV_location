@@ -26,11 +26,7 @@ venv/
 coverange.tif
 
 # Test data
-test/geo/
-test/geotiff/
-test/img/images/
-test/img/labels/
-test/selected/
+test/
 
 # OS
 .DS_Store
