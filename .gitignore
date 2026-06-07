@@ -1,0 +1,42 @@
+﻿__pycache__/
+*.py[cod]
+*.class
+*.so
+.env
+.venv
+venv/
+
+# IDE
+.idea/
+**/.idea/
+.claude/
+
+# Large data files
+*.tif
+*.tiff
+*.geotiff
+*.shp
+*.shx
+*.dbf
+*.prj
+*.sbn
+*.sbx
+*.cpg
+*.xml
+coverange.tif
+
+# Test data
+test/geo/
+test/geotiff/
+test/img/images/
+test/img/labels/
+test/selected/
+
+# OS
+.DS_Store
+desktop.ini
+._*
+Thumbs.db
+
+# Lock files
+*.sr.lock
