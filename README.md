@@ -30,7 +30,7 @@
 5. 每步查询 DSM 高程，穿越地表时二分法精化（精度 \~0.05mm）
 
 **用法：**
-`ash py src/pixel\\\_to\\\_geo\\\_dem.py <照片.JPG> <DSM.tif> <像素u> <像素v> `
+python  src/pixel\_to\_geo\_dem.py <照片.JPG> <DSM.tif> <像素u> <像素v> `
 
 ### src/geo\_reference.py — 批量正射校正
 
@@ -41,14 +41,14 @@
 * 支持外部 CSV 优化位姿和相机内参文件
 
 **用法：**
-`ash py src/geo\\\_reference.py --img <照片目录> --dsm <DSM.tif> --out <输出目录> \\\[--cam cam.txt] \\\[--csv pos.csv] `
+python  src/geo\_reference.py --img <照片目录> --dsm <DSM.tif> --out <输出目录> \[--cam cam.txt] \[--csv pos.csv] `
 
 ### src/image\_footprint.py — 地面覆盖范围计算
 
 计算单张照片在地面的覆盖范围（四角 + 边中点 + 中心共 9 个采样点），输出每个点的经纬度和边界框。
 
 **用法：**
-`ash py src/image\\\_footprint.py <照片.JPG> <DSM.tif> \\\[--cam cam.txt] \\\[--csv pos.csv] `
+python src/image\_footprint.py <照片.JPG> <DSM.tif> \[--cam cam.txt] \[--csv pos.csv] `
 
 ### src/full\_coverage\_selector.py — 空间覆盖筛选
 
@@ -60,7 +60,7 @@
 * 输出：选中照片列表、GeoJSON 可视化、覆盖图
 
 **用法：**
-`ash py src/full\\\_coverage\\\_selector.py --img <照片目录> --dsm <DSM.tif> --shp <ROI.shp> --out <输出目录> `
+python src/full\_coverage\_selector.py --img <照片目录> --dsm <DSM.tif> --shp <ROI.shp> --out <输出目录> `
 
 ### src/pixel\_to\_geo.py — 简易版定位（无 DSM）
 
