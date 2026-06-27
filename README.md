@@ -13,13 +13,13 @@
 
 ## 总体思路
 
-`JPG (含XMP位姿) ──→ 相机光线方向向量 ──→ ENU 坐标系 │ ▼ ECEF 空间射线步进 │ ▼ ┌──── 与 DSM 求交 ────┐ │                    │ 有 DSM                  无 DSM │                    │ 精确地面交点            平坦地面假设 │                    │ ▼                    ▼ CGCS2000 坐标      (粗略估计) (lon, lat, alt)`
+`JPG (含XMP位姿) ──→ 相机光线方向向量 ──→ ENU 坐标系 │ ▼ ECEF 空间射线步进 │ ▼ ┌──── 与 DSM 求交 ────┐ │ │ 有 DSM 无 DSM │ │ │ 精确地面交点 平坦地面假设 │ │ │ ▼ ▼ CGCS2000 坐标 (粗略估计) (lon, lat, alt)`
 
 核心方法：从相机位置出发，沿像素对应的光线方向在 ECEF 空间中步进，每步查询 DSM 高程，找到射线与地表的精确交点。
 
 ## 脚本说明
 
-### src/pixel\_to\_geo\_dem.py — 核心定位引擎
+### src/pixel_to_geo_dem.py — 核心定位引擎
 
 单张照片 **像素 → CGCS2000 坐标** 的核心模块。流程：
 
@@ -27,12 +27,12 @@
 2. 像素归一化 + 可选 Brown-Conrady 畸变校正
 3. 构造相机→ENU 旋转矩阵（yaw-pitch-roll）
 4. ENU→ECEF 转换，在 ECEF 空间做射线步进
-5. 每步查询 DSM 高程，穿越地表时二分法精化（精度 \~0.05mm）
+5. 每步查询 DSM 高程，穿越地表时二分法精化（精度 ~0.05mm）
 
 **用法：**
-python  src/pixel\_to\_geo\_dem.py <照片.JPG> <DSM.tif> <像素u> <像素v> `
+python  src/pixel_to_geo_dem.py <照片.JPG> <DSM.tif> <像素u> <像素v>
 
-### src/geo\_reference.py — 批量正射校正
+### src/geo_reference.py — 批量正射校正
 
 将 DJI 照片批量生成带地理坐标的正射 GeoTIFF。
 
@@ -41,16 +41,16 @@ python  src/pixel\_to\_geo\_dem.py <照片.JPG> <DSM.tif> <像素u> <像素v> `
 * 支持外部 CSV 优化位姿和相机内参文件
 
 **用法：**
-python  src/geo\_reference.py --img <照片目录> --dsm <DSM.tif> --out <输出目录> \[--cam cam.txt] \[--csv pos.csv] `
+python  src/geo_reference.py --img <照片目录> --dsm <DSM.tif> --out <输出目录> [--cam cam.txt] [--csv pos.csv]
 
-### src/image\_footprint.py — 地面覆盖范围计算
+### src/image_footprint.py — 地面覆盖范围计算
 
 计算单张照片在地面的覆盖范围（四角 + 边中点 + 中心共 9 个采样点），输出每个点的经纬度和边界框。
 
 **用法：**
-python src/image\_footprint.py <照片.JPG> <DSM.tif> \[--cam cam.txt] \[--csv pos.csv] `
+python src/image_footprint.py <照片.JPG> <DSM.tif> [--cam cam.txt] [--csv pos.csv]
 
-### src/full\_coverage\_selector.py — 空间覆盖筛选
+### src/full_coverage_selector.py — 空间覆盖筛选
 
 从大量航拍照片中自动选出**最少照片**覆盖指定 ROI 区域。
 
@@ -60,13 +60,23 @@ python src/image\_footprint.py <照片.JPG> <DSM.tif> \[--cam cam.txt] \[--csv p
 * 输出：选中照片列表、GeoJSON 可视化、覆盖图
 
 **用法：**
-python src/full\_coverage\_selector.py --img <照片目录> --dsm <DSM.tif> --shp <ROI.shp> --out <输出目录> `
+python src/full_coverage_selector.py --img <照片目录> --dsm <DSM.tif> --shp <ROI.shp> --out <输出目录>
 
-### src/pixel\_to\_geo.py — 简易版定位（无 DSM）
+### src/gen_all_footprints_shp.py — 航向抽稀选图
 
-pixel\_to\_geo\_dem.py 的简化版。假设平坦地面（相机相对高度作为地面高程），不用 DSM。适合快速估算或无可用地形数据时使用。
+航拍照片航向重叠率高达 70%，通过在航向上按文件名编号等间隔取图即可大幅减少冗余。所有航线全保留以保证旁向边缘全覆盖。后续可配合裁剪边缘 10% 减轻变形对配准的影响。
 
+**功能：**
+- 按文件名末尾编号排序 → 每隔 N 张取 1 张（--step 参数控制）
+- DSM 精确计算 footprint + ROI 边界过滤
+- 输出选中照片的 footprint SHP + 复制 JPG 到指定目录
 
+**用法：**
+python src/gen_all_footprints_shp.py <JPG_DIR> <DSM_TIF> <ROI_SHP> <OUT_SHP> [--step 5] [--copy_dir <DIR>]
+
+### src/pixel_to_geo.py — 简易版定位（无 DSM）
+
+pixel_to_geo_dem.py 的简化版。假设平坦地面（相机相对高度作为地面高程），不用 DSM。适合快速估算或无可用地形数据时使用。
 
 ## 文件说明
 
@@ -74,13 +84,13 @@ pixel\_to\_geo\_dem.py 的简化版。假设平坦地面（相机相对高度作
 |-|-|
 |cam.txt|相机内参（焦距、主点、畸变系数 Brown-Conrady）|
 |ilter.md|项目背景与技术路线文档|
-|geo\_reference\_原理说明.md|地理校正原理：透视 vs 仿射的数学解释|
-|pixel\_to\_geo\_dem\_流程说明.md|像素→地理坐标的完整计算流程与公式|
+|geo_reference_原理说明.md|地理校正原理：透视 vs 仿射的数学解释|
+|pixel_to_geo_dem_流程说明.md|像素→地理坐标的完整计算流程与公式|
 |精度不够的原因.txt|单张照片定位精度不足的原因分析|
 
 ## 依赖
 
-`rasterio  numpy  Pillow  pyproj`
+`rasterio  numpy  Pillow  pyproj fiona`
 
 ## 坐标系
 
@@ -89,10 +99,7 @@ pixel\_to\_geo\_dem.py 的简化版。假设平坦地面（相机相对高度作
 * 高程基准：WGS84 椭球高（CGCS2000 椭球一致）
 * DSM 投影：支持任意投影 CRS，自动转换
 
-
-
 ## 常用流程
 
-* 使用selector.py筛选图片
-* 使用geo\_reference.py进行地理投影
-
+* 使用gen_all_footprints_shp.py筛选图片
+* 使用geo_reference.py进行地理投影
