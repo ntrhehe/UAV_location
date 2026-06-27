@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 import sys, numpy as np, math, os, csv as _csv
 from pathlib import Path
 
@@ -228,11 +228,19 @@ def main():
             if rec is None:
                 failed.append((name, 'no CSV pose'))
                 continue
-            pose = parse_dji_xmp(str(jp))
+            try:
+                pose = parse_dji_xmp(str(jp))
+            except Exception as e:
+                failed.append((name, 'XMP parse error: %s' % e))
+                continue
             pose['lat']=rec['lat']; pose['lon']=rec['lon']
             pose['abs_alt']=rec['alt']; pose['roll']=0.0
         else:
-            pose = parse_dji_xmp(str(jp)); pose['roll']=0.0
+            try:
+                pose = parse_dji_xmp(str(jp)); pose['roll']=0.0
+            except Exception as e:
+                failed.append((name, 'XMP parse error: %s' % e))
+                continue
         print('  [%d/%d] %s' % (idx, len(selected), name), end='', flush=True)
         op = out_dir / (Path(name).stem + '.tif')
         ok = write_geotiff(str(jp), pose, dsm, intrinsics, str(op),
@@ -243,8 +251,6 @@ def main():
         else:
             print('\r  [%d/%d] %s  FAILED' % (idx, len(selected), name))
             failed.append((name, 'warp failed'))
-    dsm.close()
-    print()
     print('='*52)
     print('  Success: %d/%d' % (success, len(selected)))
     if failed:

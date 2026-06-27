@@ -3,7 +3,7 @@
 image_footprint.py
 Compute the geographic footprint (bounding box) of a DJI image using DSM.
 Projects all four corners + edge midpoints to CGCS2000 (EPSG:4490).
-
+九个点采样DSM 查询
 Usage:
     python image_footprint.py <JPG> <DSM_TIF> [--cam cam.txt] [--csv pos.csv]
 '''
